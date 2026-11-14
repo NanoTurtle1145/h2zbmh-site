@@ -300,10 +300,11 @@ const FootMap = {
           <li><a :href="SITE + '/about/'">——</a></li>
           <li><a href="https://web.archive.org/" target="_blank" rel="noopener">Internet Archive</a></li>
         </ul></div>
-        <div><h4>相关学校</h4><ul>
+        <div><h4>友情链接</h4><ul>
+          <li><a href="https://blog.nanoturtle.cn/" target="_blank" rel="noopener">NanoTurtle的小窝</a></li>
+          <li><a href="https://www.hopestudio.top/" target="_blank" rel="noopener">希望工作室 · Hope Studio</a></li>
           <li><a href="http://www.hz2hs.cn/" target="_blank" rel="noopener">浙江省杭州第二中学</a></li>
-          <li><a href="http://dh.hz2hs.cn/" target="_blank" rel="noopener">杭州二中东河校区</a></li>
-          <li><a href="http://www.h2fcxx.cn/" target="_blank" rel="noopener">杭州二中附属学校</a></li>
+          <li><a :href="SITE + '/links/'">友情链接说明</a></li>
         </ul></div>
       </div>
     </div>
@@ -320,7 +321,7 @@ const Footer = {
       <span>地址：滨江区天马路 500 号　电话：0571-86798900</span>
       <div class="r">
         <a :href="SITE + '/about/'">网站地图</a>
-        <a :href="SITE + '/mecbmh/'">友情链接</a>
+        <a :href="SITE + '/links/'">友情链接</a>
         <a :href="SITE + '/about/'">法律声明</a>
       </div>
     </div>
