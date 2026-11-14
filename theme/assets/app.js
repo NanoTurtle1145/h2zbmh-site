@@ -1,7 +1,7 @@
 /* 旧站数字存档 · Vue 3 单页（本地预览）
    版式对标 www.hz2hs.cn：顶栏40 / 页头65 / 导航44 / 焦点图600 / 公告浮条90
    部署时把 SITE 改为 '' 即使用相对链接 */
-const SITE = 'https://www.h2zbmh.cn';
+const SITE = 'https://h2zbmh.cn';
 const { createApp, ref, onMounted, onBeforeUnmount } = Vue;
 const DATA = await fetch('/assets/data/site.json').then(r => r.json());
 const NEWS = await fetch('/assets/data/news.json').then(r => r.json());
