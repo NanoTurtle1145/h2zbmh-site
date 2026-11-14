@@ -60,4 +60,4 @@ npm run deploy          # 构建 + 强制推送 gh-pages
 
 也可以手动 `npm run build`，再把 `public/` 推到一个只含构建产物的分支。
 
-> 仓库：`Guixiabaifo/h2zbmh-site`；Settings → Pages → Source = **Deploy from a branch → gh-pages / (root)**；域名 `www.h2zbmh.cn`。
+> 仓库：`NanoTurtle1145/h2zbmh-site`；Settings → Pages → Source = **Deploy from a branch → gh-pages / (root)**；域名 `www.h2zbmh.cn`。

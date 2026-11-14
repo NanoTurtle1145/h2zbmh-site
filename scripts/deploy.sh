@@ -4,7 +4,7 @@
 set -e
 cd "$(dirname "$0")/.."
 
-REMOTE="${DEPLOY_REMOTE:-https://github.com/Guixiabaifo/h2zbmh-site.git}"
+REMOTE="${DEPLOY_REMOTE:-https://github.com/NanoTurtle1145/h2zbmh-site.git}"
 
 echo "==> 构建"
 npm run build
