@@ -10,7 +10,7 @@ desc: 友情链接与本站在其他站点的收录信息
 |---|---|---|
 | NanoTurtle的小窝 | https://blog.nanoturtle.cn/ | 个人博客 |
 | 希望工作室 · Hope Studio | https://www.hopestudio.top/ | 工作室主页 |
-| 浙江省杭州第二中学 | http://www.hz2hs.cn/ | 上级学校 |
+| 浙江省杭州第二中学 | http://www.hz2hs.cn/ |  |
 
 ## 本站收录信息
 
