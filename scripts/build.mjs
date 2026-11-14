@@ -81,6 +81,33 @@ function permalink(post) {
 }
 const plain = (s) => s.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
 
+/* 全站导航（首页由 Vue 渲染，其余页面用这份静态导航） */
+const NAV_ITEMS = [
+  { key: 'home', label: '首页', href: '/' },
+  { key: 'about', label: '学校概况', href: '/about/' },
+  { key: 'news', label: '校园新闻', href: '/archives/' },
+  { key: 'contact', label: '联系我们', href: '/contact/' },
+  { key: 'campus', label: '多彩校园', href: '/#gallery' },
+  { key: 'privacy', label: '隐私政策', href: '/privacy/' },
+  { key: 'archive', label: '存档', href: '/archive/', sub: [
+    { label: '存档总览', href: '/archive/' },
+    { label: '存档清单', href: '/archive/pages/' },
+    { label: '还原站点', href: '/archive/mirror/' },
+    { label: '页面快照', href: '/snapshots/' },
+  ] },
+];
+
+function renderNav(active = '') {
+  const items = NAV_ITEMS.map(it => {
+    const on = it.key === active ? ' on' : '';
+    const sub = it.sub
+      ? `<div class="sub">${it.sub.map(x => `<a href="${x.href}">${esc(x.label)}</a>`).join('')}</div>`
+      : '';
+    return `<div class="nv${on}"><a href="${it.href}">${esc(it.label)}</a>${sub}</div>`;
+  }).join('');
+  return `<div class="nav"><div class="wrap">${items}</div></div>`;
+}
+
 /* ------------------------------------------------------------------ load posts */
 function loadPosts() {
   if (!fs.existsSync(POSTS)) return [];
@@ -148,7 +175,8 @@ function renderPost(post, prev, next) {
     .replaceAll('{{TAGS}}', post.tags.map(t => `<a href="../../tags/${encodeURIComponent(t)}/">#${esc(t)}</a>`).join('') || '<a href="../../archives/">#校园新闻</a>')
     .replaceAll('{{PREV}}', prev ? `<a href="../../${prev.url}"><small>← 上一篇</small><strong>${esc(prev.title)}</strong></a>` : '<span></span>')
     .replaceAll('{{NEXT}}', next ? `<a class="right" href="../../${next.url}"><small>下一篇 →</small><strong>${esc(next.title)}</strong></a>` : '<span></span>')
-    .replaceAll('{{COVER_META}}', cover ? `<meta property="og:image" content="${esc(cover)}">` : '');
+    .replaceAll('{{COVER_META}}', cover ? `<meta property="og:image" content="${esc(cover)}">` : '')
+    .replaceAll('{{NAV}}', renderNav('news'));
 }
 
 function renderArchive(posts) {
@@ -160,6 +188,7 @@ function renderArchive(posts) {
   }).join('\n');
   return T('archive.html')
     .replaceAll('{{COUNT}}', String(posts.length))
+    .replaceAll('{{NAV}}', renderNav('news'))
     .replaceAll('{{YEARS}}', blocks);
 }
 
@@ -170,7 +199,7 @@ function renderTags(posts) {
     const items = tags[t].map(p => `<li><span class="d">${p.date}</span><a href="../../${p.url}">${esc(p.title)}</a></li>`).join('');
     return `<section class="tag-block" id="${esc(t)}"><h2>#${esc(t)}<small>${tags[t].length} 篇</small></h2><ul>${items}</ul></section>`;
   }).join('\n');
-  return T('tags.html').replaceAll('{{TAGS}}', cards);
+  return T('tags.html').replaceAll('{{NAV}}', renderNav('news')).replaceAll('{{TAGS}}', cards);
 }
 
 /* ------------------------------------------------------------------ build */
@@ -197,7 +226,9 @@ function build() {
     fs.writeFileSync(path.join(dir, 'index.html'), PAGES_TPL
       .replaceAll('{{TITLE}}', esc(pg.title))
       .replaceAll('{{DESC}}', esc(pg.desc))
-      .replaceAll('{{BODY}}', pg.html));
+      .replaceAll('{{BODY}}', pg.html)
+      .replaceAll('{{NAV}}', renderNav(
+        pg.url === '/about/' ? 'about' : pg.url === '/privacy/' ? 'privacy' : pg.url === '/contact/' ? 'contact' : '')));
   }
 
   // 归档 / 标签
@@ -261,7 +292,9 @@ function build() {
 .snap-list li{padding:11px 4px;border-bottom:1px dashed #e8e8e8;font-size:15px}
 .snap-list a{color:#333} .snap-list a:hover{color:#0c8066}
 </style></head><body>
-<div class="topbar"><div class="wrap"><span class="item">联系我们：0571-86798900</span></div></div>
+<div class="topbar"><div class="wrap"><span class="item">联系我们：0571-86798900</span><span class="sep">|</span><span class="item">校长信箱：——</span></div></div>
+<div class="hd"><div class="wrap" style="grid-template-columns:1fr auto 1fr"><div class="campus"><a href="/">总校</a><span class="sep">|</span><a href="/">小学部</a><span class="sep">|</span><a href="/">初中部</a></div><a class="logo" href="/" style="color:inherit"><img class="logoimg" src="/assets/img/logo.png" alt="杭州二中白马湖学校"></a><div class="empty"></div></div></div>
+${renderNav('archive')}
 <div class="snap-wrap">
   <div class="snap-hd"><h1>页面快照</h1><p>共 ${items.length} 份旧站页面快照，点击可直接查看</p></div>
   <ul class="snap-list">
@@ -277,7 +310,7 @@ ${rows}
   const yearLinks = (hubData.years || []).map(y => `<a href="/archives/#y${y.y}"><b>${y.y}</b><span>${y.n} 篇</span></a>`).join('');
   ensure(path.join(PUBLIC, 'archive'));
   fs.writeFileSync(path.join(PUBLIC, 'archive', 'index.html'),
-    T('archive-hub.html').replaceAll('{{YEARS}}', yearLinks));
+    T('archive-hub.html').replaceAll('{{NAV}}', renderNav('archive')).replaceAll('{{YEARS}}', yearLinks));
   if (MEDIA) rewriteMedia(PUBLIC, MEDIA);
 
   console.log(`✓ build ${posts.length} posts → public/  (${Date.now() - t0} ms)`);
