@@ -305,6 +305,14 @@ ${rows}
 </body></html>`);
   }
 
+  // 存档清单（新样式，数据来自旧存档页）
+  const archiveListHtml = renderArchiveList(renderNav('archive'));
+  if (archiveListHtml) {
+    const dir = path.join(PUBLIC, 'archive', 'pages');
+    ensure(dir);
+    fs.writeFileSync(path.join(dir, 'index.html'), archiveListHtml);
+  }
+
   // 存档中心 /archive/
   const hubData = JSON.parse(fs.readFileSync(path.join(PUBLIC, 'assets', 'data', 'site.json'), 'utf8'));
   const yearLinks = (hubData.years || []).map(y => `<a href="/archives/#y${y.y}"><b>${y.y}</b><span>${y.n} 篇</span></a>`).join('');
@@ -316,11 +324,76 @@ ${rows}
   console.log(`✓ build ${posts.length} posts → public/  (${Date.now() - t0} ms)`);
 }
 
+/* ------------------------------------------------------------------ archive list */
+/** 从旧存档清单页解析出按年份分组的数据 */
+function parseArchiveList() {
+  const file = path.join(ROOT, 'static', 'archive.html');
+  if (!fs.existsSync(file)) return null;
+  const html = read(file);
+  const blocks = html.split(/<section class="year-block" id="y(\d{4})">/).slice(1);
+  const years = [];
+  for (let i = 0; i < blocks.length; i += 2) {
+    const year = blocks[i];
+    const seg = blocks[i + 1].split('</section>')[0];
+    const head = (seg.match(/<div class="yh">([\s\S]*?)<\/div>/) || [, ''])[1];
+    const meta = plain(head).replace(/^\d{4}\s*/, '');
+    const rows = [];
+    const re = /<div class="row">\s*<a class="title" href="([^"]+)">([\s\S]*?)<\/a>\s*<div class="sec">([\s\S]*?)<\/div>\s*<div class="ts">([\s\S]*?)<\/div>\s*<div class="act">([\s\S]*?)<\/div>\s*<\/div>/g;
+    let m;
+    while ((m = re.exec(seg))) {
+      const [, href, title, sec, ts, act] = m;
+      const org = act.match(/href="(https:\/\/web\.archive\.org\/[^"]+)"/);
+      const date = act.match(/(20\d{2}-\d{2}-\d{2})/);
+      rows.push({
+        href: href.replace(/^snapshots\//, '/snapshots/'),
+        title: plain(title), sec: plain(sec).replace(/\s*·\s*$/, ''),
+        ts: plain(ts), org: org ? org[1] : '', date: date ? date[1] : '',
+      });
+    }
+    years.push({ year, meta, rows });
+  }
+  return years;
+}
+
+function renderArchiveList(nav) {
+  const years = parseArchiveList();
+  if (!years) return null;
+  const summary = plain(read(path.join(ROOT, 'static', 'archive.html'))
+    .match(/<section class="page-hd">[\s\S]*?<p>([\s\S]*?)<\/p>/)?.[1] || '');
+  const mPages = summary.match(/(\d+)\s*个页面/);
+  const mSnaps = summary.match(/(\d+)\s*份/);
+  const mRange = summary.match(/(20\d{2})\s*[—-]\s*(20\d{2})/);
+  const pages = mPages ? Number(mPages[1]) : years.reduce((n, y) => n + y.rows.length, 0);
+  const snaps = mSnaps ? Number(mSnaps[1]) : 0;
+  const range = mRange ? `${mRange[1]}—${mRange[2]}`
+    : `${years.map(y => y.year).sort()[0]}—${years.map(y => y.year).sort().slice(-1)[0]}`;
+  const yearNav = years.map(y => `<a href="#y${y.year}">${y.year}</a>`).join('');
+  const blocks = years.map(y => `
+  <section class="ap-year" id="y${y.year}">
+    <h2>${y.year}<span>${esc(y.meta)}</span></h2>
+    <div class="ap-list">
+      <div class="ap-head"><div>页面</div><div>分部 / 类型</div><div>快照</div><div>操作</div></div>
+      ${y.rows.map(r => `<div class="ap-row">
+        <a class="t" href="${esc(r.href)}">${esc(r.title)}</a>
+        <div class="ap-sec">${esc(r.sec)}</div>
+        <div class="ap-ts">${esc(r.ts)}</div>
+        <div class="ap-act"><a href="${esc(r.href)}">查看快照</a>${r.org ? `<a class="alt" href="${esc(r.org)}" target="_blank" rel="noopener">原始档案</a>` : ''}<span>${esc(r.date)}</span></div>
+      </div>`).join('')}
+    </div>
+  </section>`).join('\n');
+  return T('archive-pages.html')
+    .replaceAll('{{NAV}}', nav)
+    .replaceAll('{{PAGES}}', String(pages))
+    .replaceAll('{{SNAPS}}', String(snaps))
+    .replaceAll('{{RANGE}}', range)
+    .replaceAll('{{YEARNAV}}', yearNav)
+    .replaceAll('{{BLOCKS}}', blocks);
+}
+
 /* ------------------------------------------------------------------ archive */
 /** 把存档相关页面统一收进 /archive/，并在原地址留跳转 */
 function relocateArchive() {
   const moves = [
-    { from: 'archive.html', to: 'archive/pages/index.html' },
     { from: 'mirror-index.html', to: 'archive/mirror/index.html' },
   ];
   const fix = (html) => html
