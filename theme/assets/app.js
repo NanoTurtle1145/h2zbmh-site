@@ -32,7 +32,22 @@ const TopBar = {
       <span class="sep">|</span>
       <span class="item"><i v-html="ICON.mail" style="display:flex"></i>校长信箱：——</span>
       <span class="sep">|</span>
-      <span class="item"><i v-html="ICON.globe" style="display:flex"></i>EN</span>
+      <div class="langdrop">
+        <span class="item cur"><i v-html="ICON.globe" style="display:flex"></i>中文</span>
+        <div class="sub">
+          <a class="on" href="/">中文</a>
+          <a href="/en/" hreflang="en">English</a>
+          <a href="/fr/" hreflang="fr">Français</a>
+          <a href="/ru/" hreflang="ru">Русский</a>
+          <a href="/es/" hreflang="es">Español</a>
+          <a href="/ar/" hreflang="ar">العربية</a>
+          <a href="/ja/" hreflang="ja">日本語</a>
+          <a href="/ko/" hreflang="ko">한국어</a>
+          <a href="/de/" hreflang="de">Deutsch</a>
+          <a href="/pt/" hreflang="pt">Português</a>
+          <a href="/it/" hreflang="it">Italiano</a>
+        </div>
+      </div>
       <div class="right">
         <i v-html="ICON.search" style="display:flex"></i>
         <input :value="q" @input="q = $event.target.value" @keyup.enter="go" placeholder="搜索">

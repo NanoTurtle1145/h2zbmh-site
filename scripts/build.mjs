@@ -129,6 +129,14 @@ const NAV_KEYS = {
   campus: 'nav_campus', privacy: 'nav_privacy', archive: 'nav_archive',
 };
 
+function langDrop(lang = 'zh') {
+  const cur = LANGS.find(l => l.code === lang) || LANGS[0];
+  const items = LANGS.map(l =>
+    `<a class="${l.code === lang ? 'on' : ''}" href="${l.path}" hreflang="${l.hreflang}">${esc(l.label)}</a>`
+  ).join('');
+  return `<div class="langdrop"><span class="item cur"><i data-icon="globe"></i>${esc(cur.label)}</span><div class="sub">${items}</div></div>`;
+}
+
 function renderNav(active = '', lang = 'zh') {
   const prefix = lang === 'zh' ? '' : `/${lang}`;
   const items = NAV_ITEMS.map(it => {
@@ -215,7 +223,8 @@ function renderPost(post, prev, next) {
     .replaceAll('{{PREV}}', prev ? `<a href="/${prev.url}"><small>← 上一篇</small><strong>${esc(prev.title)}</strong></a>` : '<span></span>')
     .replaceAll('{{NEXT}}', next ? `<a class="right" href="/${next.url}"><small>下一篇 →</small><strong>${esc(next.title)}</strong></a>` : '<span></span>')
     .replaceAll('{{COVER_META}}', cover ? `<meta property="og:image" content="${esc(cover)}">` : '')
-    .replaceAll('{{NAV}}', renderNav('news'));
+    .replaceAll('{{NAV}}', renderNav('news'))
+    .replaceAll('{{LANGDROP}}', langDrop('zh'));
 }
 
 function renderArchive(posts) {
@@ -238,7 +247,7 @@ function renderTags(posts) {
     const items = tags[t].map(p => `<li><span class="d">${p.date}</span><a href="/${p.url}">${esc(p.title)}</a></li>`).join('');
     return `<section class="tag-block" id="${esc(t)}"><h2>#${esc(t)}<small>${tags[t].length} 篇</small></h2><ul>${items}</ul></section>`;
   }).join('\n');
-  return T('tags.html').replaceAll('{{NAV}}', renderNav('news')).replaceAll('{{TAGS}}', cards);
+  return T('tags.html').replaceAll('{{NAV}}', renderNav('news')).replaceAll('{{LANGDROP}}', langDrop('zh')).replaceAll('{{TAGS}}', cards);
 }
 
 /* ------------------------------------------------------------------ build */
@@ -266,6 +275,7 @@ function build() {
       .replaceAll('{{TITLE}}', esc(pg.title))
       .replaceAll('{{DESC}}', esc(pg.desc))
       .replaceAll('{{BODY}}', pg.html)
+      .replaceAll('{{LANGDROP}}', langDrop('zh'))
       .replaceAll('{{NAV}}', renderNav(
         pg.url === '/about/' ? 'about' : pg.url === '/privacy/' ? 'privacy' : pg.url === '/contact/' ? 'contact' : '')));
   }
@@ -331,7 +341,7 @@ function build() {
 .snap-list li{padding:11px 4px;border-bottom:1px dashed #e8e8e8;font-size:15px}
 .snap-list a{color:#333} .snap-list a:hover{color:#0c8066}
 </style></head><body>
-<div class="topbar"><div class="wrap"><span class="item">联系我们：0571-86798900</span><span class="sep">|</span><span class="item">校长信箱：——</span></div></div>
+<div class="topbar"><div class="wrap"><span class="item">联系我们：0571-86798900</span><span class="sep">|</span><span class="item">校长信箱：——</span>${langDrop('zh')}</div></div>
 <div class="hd"><div class="wrap" style="grid-template-columns:1fr auto 1fr"><div class="campus"><a href="/">总校</a><span class="sep">|</span><a href="/">小学部</a><span class="sep">|</span><a href="/">初中部</a></div><a class="logo" href="/" style="color:inherit"><img class="logoimg" src="/assets/img/logo.png" alt="杭州二中白马湖学校"></a><div class="empty"></div></div></div>
 ${renderNav('archive')}
 <div class="snap-wrap">
@@ -346,6 +356,7 @@ ${rows}
 
   // 多语言页面 + 首页
   renderI18n();
+  writeSitemap(posts, null);
 
   // 存档清单（新样式，数据来自旧存档页）
   const archiveListHtml = renderArchiveList(renderNav('archive'));
@@ -368,7 +379,7 @@ ${rows}
   const yearLinks = (hubData.years || []).map(y => `<a href="/archives/#y${y.y}"><b>${y.y}</b><span>${y.n} 篇</span></a>`).join('');
   ensure(path.join(PUBLIC, 'archive'));
   fs.writeFileSync(path.join(PUBLIC, 'archive', 'index.html'),
-    T('archive-hub.html').replaceAll('{{NAV}}', renderNav('archive')).replaceAll('{{YEARS}}', yearLinks));
+    T('archive-hub.html').replaceAll('{{NAV}}', renderNav('archive')).replaceAll('{{LANGDROP}}', langDrop('zh')).replaceAll('{{YEARS}}', yearLinks));
   if (MEDIA) rewriteMedia(PUBLIC, MEDIA);
 
   console.log(`✓ build ${posts.length} posts → public/  (${Date.now() - t0} ms)`);
@@ -433,6 +444,7 @@ function renderArchiveList(nav) {
   </section>`).join('\n');
   return T('archive-pages.html')
     .replaceAll('{{NAV}}', nav)
+    .replaceAll('{{LANGDROP}}', langDrop('zh'))
     .replaceAll('{{PAGES}}', String(pages))
     .replaceAll('{{SNAPS}}', String(snaps))
     .replaceAll('{{RANGE}}', range)
@@ -489,6 +501,7 @@ function renderMirrorList(nav) {
   </section>`).join('\n');
   return T('archive-pages.html')
     .replaceAll('{{NAV}}', nav)
+    .replaceAll('{{LANGDROP}}', langDrop('zh'))
     .replaceAll('{{PAGES}}', String(total))
     .replaceAll('{{SNAPS}}', '—')
     .replaceAll('{{RANGE}}', '按原始路径还原')
@@ -498,6 +511,79 @@ function renderMirrorList(nav) {
     .replaceAll('{{BLOCKS}}', blocks);
 }
 
+
+
+/* ------------------------------------------------------------------ sitemap */
+function writeSitemap(posts, pages) {
+  const base = 'https://h2zbmh.cn';
+  const today = new Date().toISOString().slice(0, 10);
+  const urls = [];
+
+  const zhPageUrls = [
+    { loc: '/',        pr: '1.0', cf: 'daily'  },
+    { loc: '/about/',  pr: '0.8', cf: 'monthly' },
+    { loc: '/contact/',pr: '0.7', cf: 'monthly' },
+    { loc: '/privacy/',pr: '0.5', cf: 'yearly'  },
+    { loc: '/links/',  pr: '0.5', cf: 'monthly' },
+    { loc: '/archives/', pr: '0.8', cf: 'weekly' },
+    { loc: '/tags/',   pr: '0.5', cf: 'weekly'  },
+    { loc: '/archive/',pr: '0.6', cf: 'monthly' },
+    { loc: '/archive/pages/',  pr: '0.6', cf: 'monthly' },
+    { loc: '/archive/mirror/', pr: '0.6', cf: 'monthly' },
+    { loc: '/snapshots/',      pr: '0.4', cf: 'yearly'  },
+  ];
+
+  // 中文页面 + 其他语言对应页（hreflang 互指）
+  const i18nSlugs = ['about', 'contact', 'privacy', 'links'];
+  const multi = new Map();       // slug -> {lang: url}
+  for (const slug of i18nSlugs) {
+    const map = { zh: `/${slug}/` };
+    for (const L of LANGS.filter(x => x.code !== 'zh')) map[L.code] = `/${L.code}/${slug}/`;
+    multi.set(slug, map);
+  }
+
+  const altLinks = (slug) => {
+    const map = multi.get(slug);
+    if (!map) return '';
+    return Object.entries(map)
+      .map(([code, u]) => {
+        const l = LANGS.find(x => x.code === code);
+        return `<xhtml:link rel="alternate" hreflang="${l.hreflang}" href="${base}${u}"/>`;
+      }).join('');
+  };
+
+  for (const e of zhPageUrls) urls.push({ ...e, loc: e.loc, lastmod: today });
+  for (const slug of i18nSlugs) {
+    const map = multi.get(slug);
+    for (const [code, u] of Object.entries(map)) {
+      urls.push({ loc: u, lastmod: today, pr: '0.6', cf: 'monthly', alternates: altLinks(slug) });
+    }
+  }
+  for (const L of LANGS.filter(x => x.code !== 'zh')) {
+    urls.push({ loc: `/${L.code}/`, lastmod: today, pr: '0.7', cf: 'weekly' });
+  }
+  for (const p of posts) {
+    urls.push({ loc: '/' + p.url, lastmod: p.date, pr: '0.7', cf: 'monthly' });
+  }
+
+  const xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
+    + '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n'
+    + urls.map(u => [
+        '  <url>',
+        `    <loc>${base}${u.loc}</loc>`,
+        `    <lastmod>${u.lastmod}</lastmod>`,
+        u.cf ? `    <changefreq>${u.cf}</changefreq>` : '',
+        u.pr ? `    <priority>${u.pr}</priority>` : '',
+        u.alternates ? '    ' + u.alternates : '',
+        '  </url>',
+      ].filter(Boolean).join('\n')).join('\n')
+    + '\n</urlset>\n';
+  fs.writeFileSync(path.join(PUBLIC, 'sitemap.xml'), xml);
+
+  fs.writeFileSync(path.join(PUBLIC, 'robots.txt'),
+    `User-agent: *\nAllow: /\n\nSitemap: ${base}/sitemap.xml\n`);
+  console.log(`  sitemap: ${urls.length} urls`);
+}
 
 /* ------------------------------------------------------------------ i18n */
 function renderI18n() {
@@ -527,6 +613,7 @@ function renderI18n() {
         .replaceAll('{{DESC}}', esc(pg.desc || ''))
         .replaceAll('{{BODY}}', md.render(pg.body || ''))
         .replaceAll('{{NAV}}', renderNav(slug === 'contact' ? 'contact' : slug, lang))
+        .replaceAll('{{LANGDROP}}', langDrop(lang))
         .replaceAll('{{T_TOP_CONTACT}}', esc(tr(lang, 'top_contact')))
         .replaceAll('{{T_TOP_MAIL}}', esc(tr(lang, 'top_mail')))
         .replaceAll('{{T_CAMPUS_MAIN}}', esc(tr(lang, 'campus_main')))
@@ -556,6 +643,7 @@ function renderI18n() {
       .replaceAll('{{ALT}}', altLinks(lang))
       .replaceAll('{{MEDIA}}', media)
       .replaceAll('{{NAV}}', renderNav('home', lang))
+      .replaceAll('{{LANGDROP}}', langDrop(lang))
       .replaceAll('{{T_TOP_CONTACT}}', esc(tr(lang, 'top_contact')))
       .replaceAll('{{T_TOP_MAIL}}', esc(tr(lang, 'top_mail')))
       .replaceAll('{{T_CAMPUS_MAIN}}', esc(tr(lang, 'campus_main')))

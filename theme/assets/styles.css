@@ -50,6 +50,15 @@ ul{list-style:none}
 .hd .en{font-size:9px;letter-spacing:.16em;color:#666;margin-top:3px;text-transform:uppercase}
 .hd .empty{}
 
+.langdrop{position:relative;display:flex;align-items:center}
+.langdrop .cur{display:flex;align-items:center;gap:6px;cursor:pointer}
+.langdrop .sub{position:absolute;top:100%;left:50%;transform:translateX(-50%);min-width:132px;background:#fff;
+  display:none;border-top:2px solid var(--teal);box-shadow:0 16px 30px -20px rgba(0,0,0,.45);z-index:120;padding:4px 0}
+.langdrop:hover .sub{display:block}
+.langdrop .sub a{display:block;padding:6px 14px;font-size:13px;color:#424242;white-space:nowrap;text-align:center}
+.langdrop .sub a:hover{background:#eef7f4;color:var(--teal)}
+.langdrop .sub a.on{color:var(--teal);font-weight:600}
+
 /* ===== 主导航 44px ===== */
 .nav{background:var(--g1);border-bottom:1px solid #ececec;position:relative;z-index:60}
 .nav .wrap{display:flex;justify-content:center;align-items:stretch;height:44px;position:relative}
