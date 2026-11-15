@@ -313,6 +313,14 @@ ${rows}
     fs.writeFileSync(path.join(dir, 'index.html'), archiveListHtml);
   }
 
+  // 还原站点清单（新样式）
+  const mirrorHtml = renderMirrorList(renderNav('archive'));
+  if (mirrorHtml) {
+    const dir = path.join(PUBLIC, 'archive', 'mirror');
+    ensure(dir);
+    fs.writeFileSync(path.join(dir, 'index.html'), mirrorHtml);
+  }
+
   // 存档中心 /archive/
   const hubData = JSON.parse(fs.readFileSync(path.join(PUBLIC, 'assets', 'data', 'site.json'), 'utf8'));
   const yearLinks = (hubData.years || []).map(y => `<a href="/archives/#y${y.y}"><b>${y.y}</b><span>${y.n} 篇</span></a>`).join('');
@@ -390,12 +398,68 @@ function renderArchiveList(nav) {
     .replaceAll('{{BLOCKS}}', blocks);
 }
 
+
+/** 从旧「还原站点清单」解析表格数据 */
+function parseMirrorList() {
+  const file = path.join(ROOT, 'static', 'mirror-index.html');
+  if (!fs.existsSync(file)) return null;
+  const html = read(file);
+  const sections = html.split(/<h2[^>]*>/).slice(1);
+  const out = [];
+  for (const sec of sections) {
+    const title = plain(sec.split('</h2>')[0]).trim();
+    const rows = [];
+    const rowRe = /<tr>([\s\S]*?)<\/tr>/g;
+    let m;
+    while ((m = rowRe.exec(sec.split('</table>')[0]))) {
+      const cells = [...m[1].matchAll(/<t[hd][^>]*>([\s\S]*?)<\/t[hd]>/g)].map(x => x[1]);
+      if (!cells.length) continue;
+      if (/原路径/.test(plain(cells[0]))) continue;
+      const link = cells[0].match(/href="([^"]+)"/);
+      rows.push({
+        path: plain(cells[0]).trim(),
+        href: link ? link[1] : '',
+        status: cells[1] ? plain(cells[1]).trim() : '',
+        snaps: cells[2] ? plain(cells[2]).trim() : '',
+      });
+    }
+    if (title) out.push({ title, rows });
+  }
+  return out;
+}
+
+function renderMirrorList(nav) {
+  const sections = parseMirrorList();
+  if (!sections) return null;
+  const total = sections.reduce((n, s2) => n + s2.rows.length, 0);
+  const blocks = sections.map(sec => `
+  <section class="ap-year">
+    <h2>${esc(sec.title)}<span>${sec.rows.length} 项</span></h2>
+    <div class="ap-list">
+      <div class="ap-head"><div>原路径</div><div>状态</div><div>快照</div><div>操作</div></div>
+      ${sec.rows.map(r => `<div class="ap-row">
+        <a class="t" href="${esc(r.href || '#')}">${esc(r.path)}</a>
+        <div class="ap-sec">${esc(r.status)}</div>
+        <div class="ap-ts">${esc(r.snaps)}</div>
+        <div class="ap-act">${r.href ? `<a href="${esc(r.href)}">打开页面</a>` : '<span>无快照</span>'}</div>
+      </div>`).join('')}
+    </div>
+  </section>`).join('\n');
+  return T('archive-pages.html')
+    .replaceAll('{{NAV}}', nav)
+    .replaceAll('{{PAGES}}', String(total))
+    .replaceAll('{{SNAPS}}', '—')
+    .replaceAll('{{RANGE}}', '按原始路径还原')
+    .replaceAll('{{YEARNAV}}', '')
+    .replaceAll('<h1 class="ap-title">存档清单</h1>', '<h1 class="ap-title">还原站点清单</h1>')
+    .replaceAll('/archive/pages/">存档清单', '/archive/mirror/">还原站点')
+    .replaceAll('{{BLOCKS}}', blocks);
+}
+
 /* ------------------------------------------------------------------ archive */
 /** 把存档相关页面统一收进 /archive/，并在原地址留跳转 */
 function relocateArchive() {
-  const moves = [
-    { from: 'mirror-index.html', to: 'archive/mirror/index.html' },
-  ];
+  const moves = [];
   const fix = (html) => html
     .replace(/(href|src)="assets\//g, '$1="/assets/')
     .replace(/(href|src)="snapshots\//g, '$1="/snapshots/')
