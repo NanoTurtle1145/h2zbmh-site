@@ -1,0 +1,21 @@
+/* ============================================================
+   占位样式表 —— 该 CSS 文件未被网页时光机存档
+   原始地址：http://www.h2zbmh.com/mecbmh/styles/bmhxx/middle_topic_home.css
+   本文件由存档复原脚本生成，仅用于让历史页面保持可读的排版，
+   视觉风格参照杭二中系学校官网（主色 #0c8066）。
+   ============================================================ */
+body{margin:0 auto;padding:22px 28px 40px;max-width:1200px;
+     font-family:"Microsoft YaHei","PingFang SC","Noto Sans CJK SC",Arial,sans-serif;
+     font-size:15px;line-height:1.9;color:#333;background:#fff}
+a{color:#0c8066;text-decoration:none}
+a:hover{color:#ea5037;text-decoration:underline}
+img{border:1px dashed #cfd8d4;max-width:100%}
+table{border-collapse:collapse;width:auto;max-width:100%}
+td,th{padding:5px 9px;vertical-align:top}
+ul,ol{margin:6px 0;padding-left:22px}
+li{margin:3px 0}
+h1,h2,h3,h4{color:#222;font-weight:700;line-height:1.5;margin:14px 0 8px}
+h1{font-size:24px}h2{font-size:20px}h3{font-size:17px}
+font{font-size:inherit}
+hr{border:0;border-top:1px solid #e5e5e5;margin:18px 0}
+select,input,button{font-family:inherit;font-size:14px;padding:4px 8px;border:1px solid #dcdcdc}

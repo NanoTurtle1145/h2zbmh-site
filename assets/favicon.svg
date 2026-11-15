@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+<rect width="64" height="64" rx="8" fill="#0c8066"/>
+<rect x="5" y="5" width="54" height="54" rx="4" fill="none" stroke="#fff" stroke-opacity=".85" stroke-width="2"/>
+<text x="32" y="44" font-family="Songti SC,SimSun,serif" font-size="34" fill="#fff" text-anchor="middle">白</text>
+</svg>

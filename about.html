@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>站点概况 · 浙江省杭州二中白马湖学校 · 旧站数字存档</title>
+<meta name="description" content="本站的来历、存档范围、恢复方法与版权说明。">
+<meta name="theme-color" content="#0c8066">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<div class="topbar">
+  <div class="wrap">
+    <div class="contact">
+      <span>联系我们：0571-86798900</span><span class="sep">|</span>
+      <span class="hide-sm">存档范围：2015—2023</span><span class="sep hide-sm">|</span>
+      <a href="about.html">存档说明</a>
+    </div>
+    <div class="right">
+      <div class="search">
+        <input type="text" id="q" placeholder="搜索存档" aria-label="搜索存档">
+        <button type="button" onclick="var v=document.getElementById('q').value.trim();if(v)location.href='archive.html?q='+encodeURIComponent(v);">搜索</button>
+      </div>
+    </div>
+  </div>
+</div>
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="index.html">
+      <span class="seal">白马<br>湖</span>
+      <span class="name">
+        <span class="cn">浙江省杭州二中白马湖学校</span>
+        <span class="en">Hangzhou No.2 High School · Baimahu · Digital Archive</span>
+      </span>
+    </a>
+    <nav class="campus-links">
+      <a href="mecbmh/bmhxx/homepage/">总校</a><span class="sep">|</span>
+      <a href="mecbmh/bmhprimary/homepage/">小学部</a><span class="sep">|</span>
+      <a href="mecbmh/bmhmiddle/homepage/">初中部</a>
+    </nav>
+  </div>
+</header>
+<div class="mainnav"><div class="wrap"><div class="nav-item"><a href="index.html">首页</a></div><span class="sep">|</span><div class="nav-item on"><a href="about.html">站点概况</a></div><span class="sep">|</span><div class="nav-item"><a href="archive.html">存档清单</a></div><span class="sep">|</span><div class="nav-item"><a href="javascript:void(0)">分部存档</a><div class="dropdown"><a href="mecbmh/bmhxx/homepage/">总校</a><a href="mecbmh/bmhprimary/homepage/">小学部</a><a href="mecbmh/bmhmiddle/homepage/">初中部</a></div></div><span class="sep">|</span><div class="nav-item"><a href="javascript:void(0)">存档年表</a><div class="dropdown"><a href="archive.html#y2015">2015 年</a><a href="archive.html#y2016">2016 年</a><a href="archive.html#y2017">2017 年</a><a href="archive.html#y2018">2018 年</a><a href="archive.html#y2019">2019 年</a><a href="archive.html#y2020">2020 年</a><a href="archive.html#y2022">2022 年</a><a href="archive.html#y2023">2023 年</a></div></div><span class="sep">|</span><div class="nav-item"><a href="javascript:void(0)">还原站点</a><div class="dropdown"><a href="mirror-index.html">页面清单</a><a href="mecbmh/">目录树 /mecbmh/</a><a href="bmhenrol/">目录树 /bmhenrol/</a></div></div></div></div>
+
+<div class="crumb"><div class="wrap"><a href="index.html">首页</a><span class="sep">&gt;</span><span class="cur">站点概况</span></div></div>
+
+<section class="page-hd">
+  <div class="wrap">
+    <h1>站点概况</h1>
+    <div class="line"></div>
+    <p>这里的页面从哪里来，保存了什么，又丢失了什么</p>
+  </div>
+</section>
+
+<section class="section" style="padding-top:8px">
+  <div class="wrap prose">
+    <h3>站点历史</h3>
+    <p>杭州二中白马湖学校（浙江省杭州第二中学白马湖学校）的旧网站以 <code>www.h2zbmh.com</code> 为域名，采用一套名为「mecbmh」的门户系统，分为总校（bmhxx）、小学部（bmhprimary）、初中部（bmhmiddle）三个子站，每个子站下设学校新闻、最新公告、走进白马湖、教师频道、教育科研、德育之窗、国际视野、党工共建、家校互动、招生招聘等栏目。</p>
+    <p>该域名在 2023 年后停止解析，随后被第三方抢注，用于与学校无关的站点。因此本站不收录 2024 年之后的任何内容，只保留学校运营期间的历史页面。</p>
+
+    <h3>存档范围与方法</h3>
+    <p>存档数据来自 <a href="https://web.archive.org/" target="_blank" rel="noopener">Internet Archive</a> 的 Wayback Machine。通过其 CDX 接口枚举该域名在 2024 年 12 月 31 日之前的全部抓取记录，逐一还原页面，并按原 URL 路径重建目录结构。</p>
+    <ul>
+      <li>可恢复页面：52 个，历史快照 150 份，年份 2015—2023</li>
+      <li>可恢复图片：6 张（页面中被引用的绝大多数图片未进入档案）</li>
+      <li>还原站点：按原路径 <code>/mecbmh/bmhxx/…</code>、<code>/mecbmh/bmhprimary/…</code>、<code>/mecbmh/bmhmiddle/…</code> 重建，缺失的 CSS / JS / 图片 / 页面均以占位文件补齐</li>
+    </ul>
+
+    <h3>为什么页面大多是空的</h3>
+    <p>旧站为动态门户：首页的新闻列表、公告、照片轮播由脚本在浏览器中实时请求后台接口，网页时光机不执行脚本，因此这些数据从未被写入快照。浏览存档页面时看到的多为导航与页脚框架，这不是抓取失败，而是原站架构决定的结果。</p>
+
+    <h3>还原站点与占位资源</h3>
+    <p>为了尊重原版网站的目录结构，整站按原始 URL 路径还原，可以直接访问例如 <code>/mecbmh/bmhxx/homepage/</code>、<code>/mecbmh/bmhmiddle/topics/…</code>。原站引用但未被存档的 CSS、JS、图片与内部页面，均生成了同路径的占位文件，保证任何链接都不会 404，便于逐项核对档案缺失情况。</p>
+    <div class="callout">占位文件仅用于保持页面结构与可读性，其内容不代表原站真实内容。完整清单见 <a href="mirror-index.html">还原站页面清单</a>。</div>
+
+    <h3>版权说明</h3>
+    <p>页面文字、图片与标识的著作权归原作者及学校所有。本站为爱好者维护的存档复原站点，仅用于历史资料保存与非商业展示，不代表学校官方，也不作为学校对外发布渠道。如权利人认为不妥，请联系站长下架相关内容。</p>
+
+    <h3>技术细节</h3>
+    <p>本站为纯静态站点，托管于 GitHub Pages，域名 <code>www.h2zbmh.cn</code>。页面视觉风格参照杭二中系学校官网（hz2hs.cn、h2fcxx.cn）的版式与配色重建；存档页面经去除时光机注入代码、清理失效引用后，按原路径展示。</p>
+  </div>
+</section>
+
+<div class="footer-info">
+  <div class="wrap">
+    <div>
+      <h4>浙江省杭州二中白马湖学校</h4>
+      <p>地址：滨江区天马路 500 号　电话：0571-86798900（总校） / 0571-28271666（初中部）</p>
+      <p>备案证编号：浙ICP备15017196</p>
+      <p>本站为旧站数字存档复原站点，非学校官方发布渠道。页面来源：Internet Archive，存档范围 2015—2023。</p>
+    </div>
+    <div>
+      <h4>相关链接</h4>
+      <p><a href="http://www.hz2hs.cn/" target="_blank" rel="noopener">浙江省杭州第二中学</a>　·　<a href="http://dh.hz2hs.cn/" target="_blank" rel="noopener">东河校区</a>　·　<a href="http://www.h2fcxx.cn/" target="_blank" rel="noopener">杭州二中附属学校</a></p>
+      <p><a href="archive.html">存档清单</a>　·　<a href="mirror-index.html">还原站点</a>　·　<a href="about.html">站点概况</a>　·　<a href="https://web.archive.org/" target="_blank" rel="noopener">Internet Archive</a></p>
+    </div>
+  </div>
+</div>
+<div class="footer-bar">
+  <div class="wrap">
+    <span>© 浙江省杭州二中白马湖学校版权所有</span><span>|</span><span>备案证编号：浙ICP备15017196</span>
+    <div class="r"><a href="about.html">站点概况</a><a href="archive.html">存档清单</a><a href="mirror-index.html">还原站点</a></div>
+  </div>
+</div>
+</body>
+</html>

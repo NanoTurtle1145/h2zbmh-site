@@ -1,0 +1,106 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<head>
+
+
+
+
+
+
+
+
+
+
+    <title>登录</title>
+    <meta name="heading" content="登录"/>
+    <meta name="menu" content="Login"/>
+    <link rel="stylesheet" type="text/css" media="all" href="/mecbmh/styles/mcstyle/login.css"/>
+    <link rel="stylesheet" type="text/css" media="all" href="/mecbmh/styles/forms.css"/>
+</head>
+<script type="text/javascript" src="/mecbmh/scripts/prototype.js"></script>
+<script type="text/javascript" src="/mecbmh/scripts/global.js"></script>
+<script type="text/javascript" src="/mecbmh/scripts/md5.js"></script>
+
+<body id="login">
+<style id="rea-mirror-banner-style">
+#rea-mirror-banner{position:relative;z-index:99999;background:#0c8066;color:#eaf6f2;
+  font:13px/1.7 "Microsoft YaHei","Noto Sans CJK SC",sans-serif;padding:9px 16px;text-align:center}
+#rea-mirror-banner a{color:#ffe1d8;text-decoration:none}
+#rea-mirror-banner a:hover{text-decoration:underline}
+</style>
+<div id="rea-mirror-banner">存档还原页面 · 原始地址 <code>http://www.h2zbmh.com/mecbmh/login</code> · <a href="/archive.html">存档清单</a> · <a href="https://web.archive.org/web/20200615012919/http://www.h2zbmh.com/mecbmh/login" target="_blank" rel="noopener">原始档案</a></div>
+
+ 
+<form method="post" id="loginForm" action="/mecbmh/j_security_check" onsubmit="saveUsername(this);return validateForm(this)">
+<fieldset style="padding-bottom: 0">
+
+    <ul>
+       	<span>用户名</span>
+        <input type="text" class="text medium" name="j_username" id="j_username" tabindex="1"/>
+    </ul>
+
+    <ul>
+        <span>密码</span>
+        <input type="password" class="text medium" name="j_password" id="j_password" tabindex="2"/>
+    </ul>
+
+    <ul style="padding-left:0px;text-align:center;margin:auto;">
+        <input type="submit" class="btnLogin" name="login" value="" tabindex="3"/>
+        <input type="button" class="btnCancel" name="cancel" value="" tabindex="4"/>
+    </ul>
+</fieldset>
+</form>
+
+<script type="text/javascript">
+    if ($.cookie("username") != null && $.cookie("username") != "") {
+        $("#j_username").val($.cookie("username"));
+        $("#j_password").focus();
+    } else {
+        $("#j_username").focus();
+    }
+    
+    function saveUsername(theForm) {
+        $.cookie("username",theForm.j_username.value, { expires: 30, path: "/mecbmh/"});
+    }
+    
+    function validateForm(form) {                                                               
+        var valid = validateRequired(form);
+        if (valid == false) {
+            $(".form-group").addClass('error');
+        }
+        return valid;
+    }
+
+    function passwordHint() {
+        if ($("#j_username").val().length == 0) {
+            alert("用户名 为必填项�?");
+            $("#j_username").focus();
+        } else {
+            location.href="/mecbmh/passwordHint/username/" + $("#j_username").val();
+        }
+    }
+    
+    function required () { 
+        this.aa = new Array("j_username", "用户名 为必填项�?", new Function ("varName", " return this[varName];"));
+        this.ab = new Array("j_password", "密码 为必填项�?", new Function ("varName", " return this[varName];"));
+    }
+</script>
+
+
+</body>
+
