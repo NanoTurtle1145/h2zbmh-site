@@ -149,10 +149,7 @@ function renderNav(active = '', lang = 'zh') {
       : '';
     return `<div class="nv${on}"><a href="${href}">${esc(label)}</a>${sub}</div>`;
   }).join('');
-  const langs = LANGS.map(l =>
-    `<a class="lg${l.code === lang ? ' on' : ''}" href="${l.path}" hreflang="${l.hreflang}">${esc(l.label)}</a>`
-  ).join('');
-  return `<div class="nav"><div class="wrap">${items}<div class="langs">${langs}</div></div></div>`;
+  return `<div class="nav"><div class="wrap">${items}</div></div>`;
 }
 
 /* ------------------------------------------------------------------ load posts */

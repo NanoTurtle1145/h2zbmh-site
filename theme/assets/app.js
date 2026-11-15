@@ -90,19 +90,6 @@ const Nav = {
         <a :href="it.href || 'javascript:;'">{{ it.label }}</a>
         <div class="sub" v-if="it.sub"><a v-for="s in it.sub" :key="s.label" :href="s.href">{{ s.label }}</a></div>
       </div>
-      <div class="langs">
-        <a class="lg on" href="/">中文</a>
-        <a class="lg" href="/en/" hreflang="en">English</a>
-        <a class="lg" href="/fr/" hreflang="fr">Français</a>
-        <a class="lg" href="/ru/" hreflang="ru">Русский</a>
-        <a class="lg" href="/es/" hreflang="es">Español</a>
-        <a class="lg" href="/ar/" hreflang="ar">العربية</a>
-        <a class="lg" href="/ja/" hreflang="ja">日本語</a>
-        <a class="lg" href="/ko/" hreflang="ko">한국어</a>
-        <a class="lg" href="/de/" hreflang="de">Deutsch</a>
-        <a class="lg" href="/pt/" hreflang="pt">Português</a>
-        <a class="lg" href="/it/" hreflang="it">Italiano</a>
-      </div>
     </div>
   </div>`,
   setup(){
