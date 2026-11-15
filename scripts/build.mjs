@@ -16,7 +16,9 @@ const ROOT = path.resolve(__dirname, '..');
 const SRC = path.join(ROOT, 'source');
 const POSTS = path.join(SRC, '_posts');
 const PAGES = path.join(SRC, '_pages');
-const THEME = path.join(ROOT, 'theme');
+const I18N = path.join(SRC, '_i18n');
+
+
 const PUBLIC = path.join(ROOT, 'public');
 
 const argv = process.argv.slice(2);
@@ -33,6 +35,26 @@ const md = new MarkdownIt({ html: true, linkify: true, breaks: false });
 /* ------------------------------------------------------------------ utils */
 const read = (p) => fs.readFileSync(p, 'utf8');
 const ensure = (d) => fs.mkdirSync(d, { recursive: true });
+
+/* 多语言：联合国六种工作语言，中文为默认 */
+const LANGS = [
+  { code: 'zh', path: '/',    label: '中文',   dir: 'ltr', hreflang: 'zh-CN' },
+  { code: 'en', path: '/en/', label: 'English', dir: 'ltr', hreflang: 'en' },
+  { code: 'fr', path: '/fr/', label: 'Français', dir: 'ltr', hreflang: 'fr' },
+  { code: 'ru', path: '/ru/', label: 'Русский', dir: 'ltr', hreflang: 'ru' },
+  { code: 'es', path: '/es/', label: 'Español', dir: 'ltr', hreflang: 'es' },
+  { code: 'ar', path: '/ar/', label: 'العربية', dir: 'rtl', hreflang: 'ar' },
+];
+const I18N_PAGES = (() => {
+  const f = path.join(I18N, 'pages.json');
+  return fs.existsSync(f) ? JSON.parse(read(f)) : {};
+})();
+const UI = (() => {
+  const f = path.join(I18N, 'ui.json');
+  return fs.existsSync(f) ? JSON.parse(read(f)) : {};
+})();
+const tr = (lang, key) => (UI[lang] && UI[lang][key]) || (UI.zh && UI.zh[key]) || key;
+const THEME = path.join(ROOT, 'theme');
 const esc = (s = '') => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 function copyDir(from, to) {
@@ -83,29 +105,41 @@ const plain = (s) => s.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
 
 /* 全站导航（首页由 Vue 渲染，其余页面用这份静态导航） */
 const NAV_ITEMS = [
-  { key: 'home', label: '首页', href: '/' },
-  { key: 'about', label: '学校概况', href: '/about/' },
-  { key: 'news', label: '校园新闻', href: '/archives/' },
-  { key: 'contact', label: '联系我们', href: '/contact/' },
-  { key: 'campus', label: '多彩校园', href: '/#gallery' },
-  { key: 'privacy', label: '隐私政策', href: '/privacy/' },
-  { key: 'archive', label: '存档', href: '/archive/', sub: [
-    { label: '存档总览', href: '/archive/' },
-    { label: '存档清单', href: '/archive/pages/' },
-    { label: '还原站点', href: '/archive/mirror/' },
-    { label: '页面快照', href: '/snapshots/' },
+  { key: 'home', label: 'nav_home', href: '/' },
+  { key: 'about', label: 'nav_about', href: '/about/' },
+  { key: 'news', label: 'nav_news', href: '/archives/' },
+  { key: 'contact', label: 'nav_contact', href: '/contact/' },
+  { key: 'campus', label: 'nav_campus', href: '/#gallery' },
+  { key: 'privacy', label: 'nav_privacy', href: '/privacy/' },
+  { key: 'archive', label: 'nav_archive', href: '/archive/', sub: [
+    { label: 'nav_archive_hub', href: '/archive/' },
+    { label: 'nav_archive_pages', href: '/archive/pages/' },
+    { label: 'nav_archive_mirror', href: '/archive/mirror/' },
+    { label: 'nav_snapshots', href: '/snapshots/' },
   ] },
 ];
 
-function renderNav(active = '') {
+const NAV_KEYS = {
+  home: 'nav_home', about: 'nav_about', news: 'nav_news', contact: 'nav_contact',
+  campus: 'nav_campus', privacy: 'nav_privacy', archive: 'nav_archive',
+};
+
+function renderNav(active = '', lang = 'zh') {
+  const prefix = lang === 'zh' ? '' : `/${lang}`;
   const items = NAV_ITEMS.map(it => {
     const on = it.key === active ? ' on' : '';
+    const label = tr(lang, it.label);
+    const href = it.key === 'home' ? (lang === 'zh' ? '/' : `/${lang}/`)
+      : it.key === 'archive' && lang !== 'zh' ? '/' : it.href;
     const sub = it.sub
-      ? `<div class="sub">${it.sub.map(x => `<a href="${x.href}">${esc(x.label)}</a>`).join('')}</div>`
+      ? `<div class="sub">${it.sub.map(x => `<a href="${x.href}">${esc(tr(lang, x.label))}</a>`).join('')}</div>`
       : '';
-    return `<div class="nv${on}"><a href="${it.href}">${esc(it.label)}</a>${sub}</div>`;
+    return `<div class="nv${on}"><a href="${href}">${esc(label)}</a>${sub}</div>`;
   }).join('');
-  return `<div class="nav"><div class="wrap">${items}</div></div>`;
+  const langs = LANGS.map(l =>
+    `<a class="lg${l.code === lang ? ' on' : ''}" href="${l.path}" hreflang="${l.hreflang}">${esc(l.label)}</a>`
+  ).join('');
+  return `<div class="nav"><div class="wrap">${items}<div class="langs">${langs}</div></div></div>`;
 }
 
 /* ------------------------------------------------------------------ load posts */
@@ -305,6 +339,9 @@ ${rows}
 </body></html>`);
   }
 
+  // 多语言页面 + 首页
+  renderI18n();
+
   // 存档清单（新样式，数据来自旧存档页）
   const archiveListHtml = renderArchiveList(renderNav('archive'));
   if (archiveListHtml) {
@@ -454,6 +491,93 @@ function renderMirrorList(nav) {
     .replaceAll('<h1 class="ap-title">存档清单</h1>', '<h1 class="ap-title">还原站点清单</h1>')
     .replaceAll('/archive/pages/">存档清单', '/archive/mirror/">还原站点')
     .replaceAll('{{BLOCKS}}', blocks);
+}
+
+
+/* ------------------------------------------------------------------ i18n */
+function renderI18n() {
+  const PAGE_TPL = T('page-i18n.html');
+  const HOME_TPL = T('home-i18n.html');
+  const media = MEDIA || '';
+  const news = JSON.parse(read(path.join(PUBLIC, 'assets', 'data', 'news.json')));
+
+  const altLinks = (lang) => LANGS
+    .map(l => `<link rel="alternate" hreflang="${l.hreflang}" href="https://h2zbmh.cn${langPath(l.code, '')}">`)
+    .join('\n');
+
+  for (const L of LANGS.filter(x => x.code !== 'zh')) {
+    const lang = L.code;
+    const pages = I18N_PAGES[lang] || {};
+
+    // 各内容页
+    for (const [slug, pg] of Object.entries(pages)) {
+      const dir = path.join(PUBLIC, lang, slug);
+      ensure(dir);
+      const html = PAGE_TPL
+        .replaceAll('{{LANG}}', lang)
+        .replaceAll('{{DIR}}', L.dir)
+        .replaceAll('{{LANG_LABEL}}', esc(L.label))
+        .replaceAll('{{ALT}}', altLinks(lang))
+        .replaceAll('{{TITLE}}', esc(pg.title))
+        .replaceAll('{{DESC}}', esc(pg.desc || ''))
+        .replaceAll('{{BODY}}', md.render(pg.body || ''))
+        .replaceAll('{{NAV}}', renderNav(slug === 'contact' ? 'contact' : slug, lang))
+        .replaceAll('{{T_TOP_CONTACT}}', esc(tr(lang, 'top_contact')))
+        .replaceAll('{{T_TOP_MAIL}}', esc(tr(lang, 'top_mail')))
+        .replaceAll('{{T_CAMPUS_MAIN}}', esc(tr(lang, 'campus_main')))
+        .replaceAll('{{T_CAMPUS_PRIMARY}}', esc(tr(lang, 'campus_primary')))
+        .replaceAll('{{T_CAMPUS_MIDDLE}}', esc(tr(lang, 'campus_middle')))
+        .replaceAll('{{T_NAV_HOME}}', esc(tr(lang, 'nav_home')))
+        .replaceAll('{{T_NAV_ABOUT}}', esc(tr(lang, 'nav_about')))
+        .replaceAll('{{T_NAV_CONTACT}}', esc(tr(lang, 'nav_contact')))
+        .replaceAll('{{T_NAV_PRIVACY}}', esc(tr(lang, 'nav_privacy')))
+        .replaceAll('{{T_FOOT_LINKS}}', esc(tr(lang, 'foot_links')))
+        .replaceAll('{{T_FOOT_COPY}}', esc(tr(lang, 'foot_copyright')))
+        .replaceAll('{{T_FOOT_ICP}}', esc(tr(lang, 'foot_icp')))
+        .replaceAll('{{T_FOOT_PRIVACY}}', esc(tr(lang, 'foot_privacy')));
+      fs.writeFileSync(path.join(dir, 'index.html'), html);
+    }
+
+    // 语言首页
+    const dir = path.join(PUBLIC, lang);
+    ensure(dir);
+    const newsHtml = news.slice(0, 8).map(n =>
+      `<a href="https://h2zbmh.cn${n.url}"><div class="d">${esc(n.date)}</div><div class="t">${esc(n.title)}</div></a>`
+    ).join('');
+    const home = HOME_TPL
+      .replaceAll('{{LANG}}', lang)
+      .replaceAll('{{DIR}}', L.dir)
+      .replaceAll('{{LANG_LABEL}}', esc(L.label))
+      .replaceAll('{{ALT}}', altLinks(lang))
+      .replaceAll('{{MEDIA}}', media)
+      .replaceAll('{{NAV}}', renderNav('home', lang))
+      .replaceAll('{{T_TOP_CONTACT}}', esc(tr(lang, 'top_contact')))
+      .replaceAll('{{T_TOP_MAIL}}', esc(tr(lang, 'top_mail')))
+      .replaceAll('{{T_CAMPUS_MAIN}}', esc(tr(lang, 'campus_main')))
+      .replaceAll('{{T_CAMPUS_PRIMARY}}', esc(tr(lang, 'campus_primary')))
+      .replaceAll('{{T_CAMPUS_MIDDLE}}', esc(tr(lang, 'campus_middle')))
+      .replaceAll('{{T_HERO_TITLE}}', esc(tr(lang, 'hero_title')))
+      .replaceAll('{{T_HERO_SUB}}', esc(tr(lang, 'hero_sub')))
+      .replaceAll('{{T_NEWS_TITLE}}', esc(tr(lang, 'news_title')))
+      .replaceAll('{{T_NEWS_MORE}}', esc(tr(lang, 'news_more')))
+      .replaceAll('{{T_NAV_ABOUT}}', esc(tr(lang, 'nav_about')))
+      .replaceAll('{{T_NAV_CONTACT}}', esc(tr(lang, 'nav_contact')))
+      .replaceAll('{{T_NAV_PRIVACY}}', esc(tr(lang, 'nav_privacy')))
+      .replaceAll('{{T_FOOT_COPY}}', esc(tr(lang, 'foot_copyright')))
+      .replaceAll('{{T_FOOT_ICP}}', esc(tr(lang, 'foot_icp')))
+      .replaceAll('{{T_FOOT_PRIVACY}}', esc(tr(lang, 'foot_privacy')))
+      .replaceAll('<!--NEWS-->', newsHtml)
+      .replace('{{NEWS}}', newsHtml)
+      .replace('{{NEWS_NOTE}}', `<div class="note">${esc(tr(lang, 'news_note'))}</div>`)
+      .replace('{{T_ABOUT_SUM}}', esc((pages.about?.desc) || ''))
+      .replace('{{T_CONTACT_SUM}}', esc((pages.contact?.desc) || ''))
+      .replace('{{T_PRIVACY_SUM}}', esc((pages.privacy?.desc) || ''));
+    fs.writeFileSync(path.join(dir, 'index.html'), home);
+  }
+}
+
+function langPath(code, slug) {
+  return (code === 'zh' ? '/' : `/${code}/`) + (slug ? slug + '/' : '');
 }
 
 /* ------------------------------------------------------------------ archive */
