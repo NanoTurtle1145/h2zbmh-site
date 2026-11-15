@@ -82,6 +82,11 @@ const Nav = {
         <a class="lg" href="/ru/" hreflang="ru">Русский</a>
         <a class="lg" href="/es/" hreflang="es">Español</a>
         <a class="lg" href="/ar/" hreflang="ar">العربية</a>
+        <a class="lg" href="/ja/" hreflang="ja">日本語</a>
+        <a class="lg" href="/ko/" hreflang="ko">한국어</a>
+        <a class="lg" href="/de/" hreflang="de">Deutsch</a>
+        <a class="lg" href="/pt/" hreflang="pt">Português</a>
+        <a class="lg" href="/it/" hreflang="it">Italiano</a>
       </div>
     </div>
   </div>`,

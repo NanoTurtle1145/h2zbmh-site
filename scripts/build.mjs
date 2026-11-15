@@ -44,6 +44,11 @@ const LANGS = [
   { code: 'ru', path: '/ru/', label: 'Русский', dir: 'ltr', hreflang: 'ru' },
   { code: 'es', path: '/es/', label: 'Español', dir: 'ltr', hreflang: 'es' },
   { code: 'ar', path: '/ar/', label: 'العربية', dir: 'rtl', hreflang: 'ar' },
+  { code: 'ja', path: '/ja/', label: '日本語', dir: 'ltr', hreflang: 'ja' },
+  { code: 'ko', path: '/ko/', label: '한국어', dir: 'ltr', hreflang: 'ko' },
+  { code: 'de', path: '/de/', label: 'Deutsch', dir: 'ltr', hreflang: 'de' },
+  { code: 'pt', path: '/pt/', label: 'Português', dir: 'ltr', hreflang: 'pt' },
+  { code: 'it', path: '/it/', label: 'Italiano', dir: 'ltr', hreflang: 'it' },
 ];
 const I18N_PAGES = (() => {
   const f = path.join(I18N, 'pages.json');
