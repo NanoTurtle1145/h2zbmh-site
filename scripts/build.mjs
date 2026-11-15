@@ -164,7 +164,7 @@ const T = (name) => read(path.join(THEME, 'templates', name));
 let ARTICLE_TPL = '', SITE = null;
 
 function renderPost(post, prev, next) {
-  const cover = post.cover ? `../../${post.cover}` : '';
+  const cover = post.cover ? `/${post.cover}` : '';
   return ARTICLE_TPL
     .replaceAll('{{TITLE}}', esc(post.title))
     .replaceAll('{{DESC}}', esc(post.excerpt))
@@ -172,9 +172,9 @@ function renderPost(post, prev, next) {
     .replaceAll('{{WORDS}}', String(post.words))
     .replaceAll('{{CATEGORY}}', esc(post.categories[0] || '校园新闻'))
     .replaceAll('{{BODY}}', post.html)
-    .replaceAll('{{TAGS}}', post.tags.map(t => `<a href="../../tags/${encodeURIComponent(t)}/">#${esc(t)}</a>`).join('') || '<a href="../../archives/">#校园新闻</a>')
-    .replaceAll('{{PREV}}', prev ? `<a href="../../${prev.url}"><small>← 上一篇</small><strong>${esc(prev.title)}</strong></a>` : '<span></span>')
-    .replaceAll('{{NEXT}}', next ? `<a class="right" href="../../${next.url}"><small>下一篇 →</small><strong>${esc(next.title)}</strong></a>` : '<span></span>')
+    .replaceAll('{{TAGS}}', post.tags.map(t => `<a href="/tags/${encodeURIComponent(t)}/">#${esc(t)}</a>`).join('') || '<a href="/archives/">#校园新闻</a>')
+    .replaceAll('{{PREV}}', prev ? `<a href="/${prev.url}"><small>← 上一篇</small><strong>${esc(prev.title)}</strong></a>` : '<span></span>')
+    .replaceAll('{{NEXT}}', next ? `<a class="right" href="/${next.url}"><small>下一篇 →</small><strong>${esc(next.title)}</strong></a>` : '<span></span>')
     .replaceAll('{{COVER_META}}', cover ? `<meta property="og:image" content="${esc(cover)}">` : '')
     .replaceAll('{{NAV}}', renderNav('news'));
 }
@@ -183,7 +183,7 @@ function renderArchive(posts) {
   const years = {};
   for (const p of posts) (years[p.date.slice(0, 4)] ||= []).push(p);
   const blocks = Object.keys(years).sort().reverse().map(y => {
-    const items = years[y].map(p => `      <li><span class="d">${p.date.slice(5)}</span><a href="../../${p.url}">${esc(p.title)}</a></li>`).join('\n');
+    const items = years[y].map(p => `      <li><span class="d">${p.date.slice(5)}</span><a href="/${p.url}">${esc(p.title)}</a></li>`).join('\n');
     return `  <section class="arch-year"><h2>${y}<small>${years[y].length} 篇</small></h2><ul>\n${items}\n  </ul></section>`;
   }).join('\n');
   return T('archive.html')
@@ -196,7 +196,7 @@ function renderTags(posts) {
   const tags = {};
   for (const p of posts) for (const t of p.tags) (tags[t] ||= []).push(p);
   const cards = Object.keys(tags).sort().map(t => {
-    const items = tags[t].map(p => `<li><span class="d">${p.date}</span><a href="../../${p.url}">${esc(p.title)}</a></li>`).join('');
+    const items = tags[t].map(p => `<li><span class="d">${p.date}</span><a href="/${p.url}">${esc(p.title)}</a></li>`).join('');
     return `<section class="tag-block" id="${esc(t)}"><h2>#${esc(t)}<small>${tags[t].length} 篇</small></h2><ul>${items}</ul></section>`;
   }).join('\n');
   return T('tags.html').replaceAll('{{NAV}}', renderNav('news')).replaceAll('{{TAGS}}', cards);
